@@ -1,6 +1,7 @@
 import subprocess
 import json
 import os
+import time
 from flask import Flask, request, jsonify
 from threading import Thread
 import fcntl  # File locking
@@ -42,8 +43,8 @@ def get_running_jobs():
 
 
 # Submit a job to SLURM using sbatch
-def submit_job(user, time, array, sweep_id):
-    sbatch_command = f"cd /myqueue && /opt/slurm/bin/sbatch --export=USER={user},IMAGE={os.getenv('IMAGE')},WANDB_SWEEP_ID={sweep_id},WANDB_API_KEY={os.getenv('WANDB_API_KEY')} --time={time} --array={array} run.slurm"
+def submit_job(user, t, array, sweep_id):
+    sbatch_command = f"cd /myqueue && /opt/slurm/bin/sbatch --export=USER={user},IMAGE={os.getenv('IMAGE')},WANDB_SWEEP_ID={sweep_id},WANDB_API_KEY={os.getenv('WANDB_API_KEY')} --time={t} --array={array} run.slurm"
     subprocess.run(sbatch_command, shell=True)
 
 
@@ -55,12 +56,12 @@ def process_queue():
         if running_jobs < 1990 and job_queue:
             job = job_queue.pop(0)  # Get the next job from the queue
             total_jobs = job["total_jobs"]
-            time = job["time"]
+            t = job["time"]
             sweep_id = job["sweep_id"]
             jobs_to_submit = min(2000 - running_jobs, total_jobs)
 
             # Submit jobs in batches (up to the remaining slots available)
-            submit_job(job["user"], time, f"1-{jobs_to_submit}", sweep_id)
+            submit_job(job["user"], t, f"1-{jobs_to_submit}", sweep_id)
 
             # If there are remaining jobs to submit, requeue them at the front
             if total_jobs > jobs_to_submit:
@@ -84,10 +85,10 @@ def submit_job_api():
 
     user = os.getenv("USER", "wlp9800")  # Default to 'wlp9800' or user environment variable
     total_jobs = data["total_jobs"]
-    time = data["time"]
+    t = data["time"]
     sweep_id = data["sweep_id"]
 
-    job = {"total_jobs": total_jobs, "time": time, "sweep_id": sweep_id, "user": user}
+    job = {"total_jobs": total_jobs, "time": t, "sweep_id": sweep_id, "user": user}
 
     job_queue = load_queue()  # Read the queue from the file
     job_queue.append(job)  # Add the new job to the queue
@@ -104,5 +105,11 @@ def start_processing_thread():
 
 
 if __name__ == "__main__":
+    result = subprocess.run("squeue -V", shell=True, capture_output=True, text=True)
+    if result.returncode == 0:
+        print(f"SLURM is accessible. Version: {result.stdout.strip()}")
+    else:
+        print("SLURM access test failed. Check your SLURM installation or permissions.")
+
     start_processing_thread()  # Start processing the job queue in the background
     app.run(host="0.0.0.0", port=5000)  # Run the Flask app

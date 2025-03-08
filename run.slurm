@@ -31,5 +31,5 @@ singularity run --writable-tmpfs \
   --env IMAGE=${IMAGE} \
   --env USER=${USER} \
   --bind /scratch/${USER}:/scratch,/home/${USER}/dev/rnn-test:/myqueue \
-  -B /opt/slurm,/usr/lib64/libreadline.so.6,/usr/lib64/libhistory.so.6,/usr/lib64/libtinfo.so.5,/var/run/munge,/usr/lib64/libmunge.so.2,/usr/lib64/libmunge.so.2.0.0,/run/munge \
+  -B /opt/slurm,/usr/lib64/libreadline.so.8,/usr/lib64/libhistory.so.8,/usr/lib64/libtinfo.so.6,/var/run/munge,/usr/lib64/libmunge.so.2,/usr/lib64/libmunge.so.2.0.0,/run/munge \
   /scratch/${USER}/images/slurm_queue_server.sif 
