@@ -26,9 +26,4 @@ if [ -z "$WANDB_API_KEY" ]; then
 fi
 
 
-singularity run \
-  --env WANDB_API_KEY=${WANDB_API_KEY} \
-  --env IMAGE=${IMAGE} \
-  --env USER=${USER} \
-  --bind /scratch/${USER}:/scratch,/home/${USER}/dev/rnn-test:/myqueue \
-  /scratch/${USER}/images/slurm_queue_server.sif 
+python /home/${USER}/dev/slurm_queue_server/poller.py $USER $IMAGE $WANDB_API_KEY
