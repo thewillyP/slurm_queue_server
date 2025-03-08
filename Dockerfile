@@ -23,6 +23,10 @@ SHELL ["/bin/bash", "-c"]
 # Set the working directory inside the container
 WORKDIR /workspace
 
+# Copy the entrypoint script into the container
+COPY entrypoint.sh /workspace/entrypoint.sh
+RUN chmod +x /workspace/entrypoint.sh
+
 # Copy the Python files into the container
 COPY queue_server.py .
 
@@ -36,4 +40,4 @@ RUN uv pip install --system --no-cache -r requirements.txt
 EXPOSE 5000
 
 # Command to run the queue_server.py script when the container starts
-CMD ["python", "queue_server.py"]
+ENTRYPOINT ["/workspace/entrypoint.sh"]

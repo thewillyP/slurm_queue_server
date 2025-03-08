@@ -43,7 +43,7 @@ def get_running_jobs():
 
 # Submit a job to SLURM using sbatch
 def submit_job(user, time, array, sweep_id):
-    sbatch_command = f"cd /home/{user}/dev/rnn-test && sbatch --export=USER={user},IMAGE={os.getenv('IMAGE')},WANDB_SWEEP_ID={sweep_id},WANDB_API_KEY={os.getenv('WANDB_API_KEY')} --time={time} --array={array} run.slurm"
+    sbatch_command = f"cd /myqueue && /opt/slurm/bin/sbatch --export=USER={user},IMAGE={os.getenv('IMAGE')},WANDB_SWEEP_ID={sweep_id},WANDB_API_KEY={os.getenv('WANDB_API_KEY')} --time={time} --array={array} run.slurm"
     subprocess.run(sbatch_command, shell=True)
 
 
