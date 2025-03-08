@@ -7,6 +7,14 @@ import fcntl
 queue_file = "/scratch/queue_server/job_queue.json"
 
 
+# Ensure the file exists, create it if it doesn't (now inside a function)
+def ensure_file_exists():
+    if not os.path.exists(queue_file):
+        os.makedirs(os.path.dirname(queue_file), exist_ok=True)  # Create the directory if not exists
+        with open(queue_file, "w") as f:
+            json.dump([], f)  # Initialize with an empty list if the file is created
+
+
 # Load the queue from file with locking
 def load_queue():
     job_queue = []
@@ -38,6 +46,8 @@ def submit_job(total_jobs, t, sweep_id):
 
 
 if __name__ == "__main__":
+    ensure_file_exists()
+
     # Check SLURM availability
     result = subprocess.run("squeue -V", shell=True, capture_output=True, text=True)
     if result.returncode == 0:
