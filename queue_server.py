@@ -109,7 +109,8 @@ if __name__ == "__main__":
     if result.returncode == 0:
         print(f"SLURM is accessible. Version: {result.stdout.strip()}")
     else:
-        print("SLURM access test failed. Check your SLURM installation or permissions.")
+        print("SLURM access test failed.")
+        print(f"Error: {result.stderr.strip()}")
 
     start_processing_thread()  # Start processing the job queue in the background
     app.run(host="0.0.0.0", port=5000)  # Run the Flask app
