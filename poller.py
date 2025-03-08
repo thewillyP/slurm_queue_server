@@ -5,7 +5,7 @@ import fcntl
 import sys
 
 # File path for the job queue
-queue_file = "/scratch/queue_server/job_queue.json"
+queue_file = "/scratch/wlp9800/queue_server/job_queue.json"
 
 
 # Load the queue from file with locking

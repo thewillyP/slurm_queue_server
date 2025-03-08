@@ -4,7 +4,7 @@ import os
 import fcntl
 
 # File path for the job queue
-queue_file = "/scratch/queue_server/job_queue.json"
+queue_file = "/scratch/wlp9800/queue_server/job_queue.json"
 
 
 # Ensure the file exists, create it if it doesn't (now inside a function)
