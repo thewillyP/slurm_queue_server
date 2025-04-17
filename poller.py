@@ -44,7 +44,7 @@ def get_running_jobs():
 # Submit a job to SLURM using sbatch
 def submit_job(variant, t, array, sweep_id):
     user = os.getenv("USER")
-    sbatch_command = f"cd /home/{user}/dev/rnn-test && /opt/slurm/bin/sbatch --export=VARIANT={variant},WANDB_SWEEP_ID={sweep_id} --time={t} --array={array} run.slurm"
+    sbatch_command = f"cd /home/{user}/dev/rnn-test && /opt/slurm/bin/sbatch --export=VARIANT={variant},WANDB_SWEEP_ID={sweep_id} --time={t} --array={array} deploy/run.slurm"
     subprocess.run(sbatch_command, shell=True)
 
 
