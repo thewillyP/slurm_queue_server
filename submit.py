@@ -37,8 +37,8 @@ def save_queue(job_queue):
 
 
 # Submit a job to the queue
-def submit_job(total_jobs, t, sweep_id):
-    job = {"total_jobs": total_jobs, "time": t, "sweep_id": sweep_id}
+def submit_job(total_jobs, t, sweep_id, variant):
+    job = {"total_jobs": total_jobs, "time": t, "sweep_id": sweep_id, "variant": variant}
     job_queue = load_queue()
     job_queue.append(job)
     save_queue(job_queue)
@@ -58,8 +58,8 @@ if __name__ == "__main__":
 
     import sys
 
-    if len(sys.argv) != 4:
-        print("Usage: python submit.py <total_jobs> <time> <sweep_id>")
+    if len(sys.argv) != 5:
+        print("Usage: python submit.py <total_jobs> <time> <sweep_id> <variant>")
         sys.exit(1)
 
-    submit_job(int(sys.argv[1]), sys.argv[2], sys.argv[3])
+    submit_job(int(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4])

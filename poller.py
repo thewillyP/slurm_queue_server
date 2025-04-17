@@ -3,6 +3,7 @@ import json
 import time
 import fcntl
 import sys
+import os
 
 # File path for the job queue
 queue_file = "/scratch/wlp9800/queue_server/job_queue.json"
@@ -41,13 +42,14 @@ def get_running_jobs():
 
 
 # Submit a job to SLURM using sbatch
-def submit_job(user, image, wandb_api_key, t, array, sweep_id):
-    sbatch_command = f"cd /home/{user}/dev/rnn-test && /opt/slurm/bin/sbatch --export=USER={user},IMAGE={image},WANDB_SWEEP_ID={sweep_id},WANDB_API_KEY={wandb_api_key} --time={t} --array={array} run.slurm"
+def submit_job(variant, t, array, sweep_id):
+    user = os.getenv("USER")
+    sbatch_command = f"cd /home/{user}/dev/rnn-test && /opt/slurm/bin/sbatch --export=VARIANT={variant},WANDB_SWEEP_ID={sweep_id} --time={t} --array={array} run.slurm"
     subprocess.run(sbatch_command, shell=True)
 
 
 # Process and submit jobs from the queue
-def process_queue(user, image, wandb_api_key):
+def process_queue():
     while True:
         job_queue = load_queue()
         running_jobs = get_running_jobs()
@@ -56,15 +58,16 @@ def process_queue(user, image, wandb_api_key):
             total_jobs = job["total_jobs"]
             t = job["time"]
             sweep_id = job["sweep_id"]
+            variant = job["variant"]
             jobs_to_submit = min(1990 - running_jobs, total_jobs)
 
-            submit_job(user, image, wandb_api_key, t, f"1-{jobs_to_submit}", sweep_id)
+            submit_job(variant, t, f"1-{jobs_to_submit}", sweep_id)
 
             if total_jobs > jobs_to_submit:
                 job["total_jobs"] -= jobs_to_submit
                 job_queue.insert(0, job)
             save_queue(job_queue)
-        time.sleep(10)
+        time.sleep(300)
 
 
 if __name__ == "__main__":
@@ -76,8 +79,4 @@ if __name__ == "__main__":
         print("SLURM access test failed.")
         print(f"Error: {result.stderr.strip()}")
 
-    if len(sys.argv) != 4:
-        print("Usage: python poller.py <user> <image> <wandb_api_key>")
-        sys.exit(1)
-
-    process_queue(sys.argv[1], sys.argv[2], sys.argv[3])
+    process_queue()
